@@ -3,10 +3,7 @@
     "",
     "\\ClassLibrary1",
     "\\Hotel.Repository",
-    "\\Hotel.Repository\\Data",
-    "\\ProjectHotel",
-    "\\ProjectHotel\\Controllers"
+    "\\Hotel.Repository\\Data"
   ],
-  "SelectedNode": "\\ProjectHotel\\Controllers\\HotelController.cs",
   "PreviewInSolutionExplorer": false
 }

@@ -1,6 +1,9 @@
 ﻿using Hotel.Models.Entities;
 using Hotel.Repository.Interfaces;
+using Hotel.Services.Exceptions;
 using Hotel.Services.Interfases;
+using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -15,44 +18,50 @@ namespace Hotel.Services.Implementations
             _hotelRepository = hotelRepository;
         }
 
-        // ახალი სასტუმროს შექმნა
         public async Task<hotel> CreateHotelAsync(hotel hotel)
         {
-            await _hotelRepository.AddAsync(hotel); // დამატება
+            if (hotel.Rating < 1 || hotel.Rating > 5)
+                throw new RatingValidationException("Rating must be between 1 and 5.");
+
+            await _hotelRepository.AddAsync(hotel);
+
+
             return hotel;
         }
 
-        // არსებული სასტუმროს განახლება
+
         public async Task<hotel> UpdateHotelAsync(int hotelId, string name, string address, int rating)
         {
-            var hotel = await _hotelRepository.GetByIdAsync(hotelId); // მოძებნა
-            if (hotel == null) return null; // თუ სასტუმრო ვერ მოიძებნა
+            var hotel = await _hotelRepository.GetByIdAsync(hotelId);
+            if (hotel == null)
+                throw new KeyNotFoundException("Hotel not found.");
+
+            if (rating < 1 || rating > 5)
+                throw new ValidationException("Rating must be between 1 and 5.");
 
             hotel.Name = name;
             hotel.Address = address;
             hotel.Rating = rating;
 
-            await _hotelRepository.UpdateAsync(hotel); // განახლება
+            await _hotelRepository.UpdateAsync(hotel);
             return hotel;
         }
 
-        // სასტუმროს წაშლა
         public async Task<bool> DeleteHotelAsync(int hotelId)
         {
-            var hotel = await _hotelRepository.GetByIdAsync(hotelId); // მოძებნა
-            if (hotel == null) return false; // თუ სასტუმრო ვერ მოიძებნა
+            var hotel = await _hotelRepository.GetByIdAsync(hotelId);
+            if (hotel == null) return false; 
 
-            await _hotelRepository.DeleteAsync(hotel); // წაშლა
+            await _hotelRepository.DeleteAsync(hotel); 
             return true;
         }
 
-        // ფილტრი
         public IQueryable<hotel> GetHotelsByFilter(string? country, string? city, int? rating)
         {
             return _hotelRepository.GetHotelsByFilter(country, city, rating);
         }
 
-        // ID-ს მიხედვით სასტუმროს მოძებნა
+        
         public async Task<hotel?> GetHotelByIdAsync(int hotelId)
         {
             return await _hotelRepository.GetByIdAsync(hotelId);

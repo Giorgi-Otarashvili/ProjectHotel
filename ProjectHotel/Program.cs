@@ -8,6 +8,7 @@ using Hotel.Services.Interfases;
 using Hotel.Services.Mapping;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using ProjectHotel.Middleware;
 
 namespace ProjectHotel
 {
@@ -54,6 +55,7 @@ namespace ProjectHotel
             {
                 app.MapOpenApi();
             }
+            app.UseMiddleware<ExceptionMiddleware>();
 
             app.UseHttpsRedirection();
 

@@ -15,7 +15,7 @@ namespace Hotel.Models.Dtos
         public string Country { get; set; } = string.Empty;
         public string City { get; set; } = string.Empty;
 
-        public ManagerDTO? Manager { get; set; } // Manager DTO-ს ვამატებთ
+        public ManagerDTO? Manager { get; set; } 
         public List<RoomDTO> Rooms { get; set; } = new();
     }
 
