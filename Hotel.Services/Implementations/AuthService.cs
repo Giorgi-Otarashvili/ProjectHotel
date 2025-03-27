@@ -1,9 +1,11 @@
-﻿using Hotel.Models.Dtos;
+﻿using Hotel.Models;
+using Hotel.Models.Dtos;
 using Hotel.Models.Entities;
 using Hotel.Services.Interfases;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
+using System.Data;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -32,6 +34,10 @@ namespace Hotel.Services.Implementations
 
         public async Task<string> RegisterGuestAsync(RegisterDTO registerDto)
         {
+            await _roleManager.CreateAsync(new IdentityRole(GuestRole));
+            await _roleManager.CreateAsync(new IdentityRole(AdminRole));
+            await _roleManager.CreateAsync(new IdentityRole(ManagerRole));
+
             return await RegisterUserAsync(registerDto, GuestRole);
         }
 
@@ -60,12 +66,25 @@ namespace Hotel.Services.Implementations
 
         private async Task<string> RegisterUserAsync(RegisterDTO registerDto, string role)
         {
+
+            var roleEnum = role switch
+            {
+                GuestRole => RoleEnum.Guest,
+                AdminRole => RoleEnum.Admin,
+                ManagerRole => RoleEnum.Manager,
+                _ => throw new DataException("Invalid role"),
+            };
+
+
             var user = new ApplicationUser
             {
                 FirstName = registerDto.FirstName,
                 LastName = registerDto.LastName,
                 Email = registerDto.Email,
-                UserName = registerDto.Email
+                UserName = registerDto.Email,
+                PersonalId = registerDto.PersonalId,
+                PhoneNumber = registerDto.PhoneNumber,
+                Role = roleEnum
             };
 
             var result = await _userManager.CreateAsync(user, registerDto.Password);

@@ -28,7 +28,7 @@ namespace Hotel.Models.Entities
         public string Address { get; set; } = string.Empty;
 
         // Relationships
-        public Manager? Manager { get; set; }
+        public ApplicationUser Manager { get; set; } = null!;
         public List<Room> Rooms { get; set; } = new();
     }
 }

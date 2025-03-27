@@ -17,7 +17,7 @@ namespace Hotel.Repository.Data
                 {
                     entity.HasOne(h => h.Manager)
                           .WithOne(m => m.Hotel)
-                          .HasForeignKey<Manager>(m => m.HotelId)
+                          .HasForeignKey<ApplicationUser>(m => m.HotelId)
                           .OnDelete(DeleteBehavior.Restrict);
 
                     entity.HasMany(h => h.Rooms)
@@ -29,24 +29,11 @@ namespace Hotel.Repository.Data
 
             public static void ConfigureManager(this ModelBuilder modelBuilder)
             {
-                modelBuilder.Entity<Manager>(entity =>
-                {
-                    entity.HasIndex(m => m.PersonalId).IsUnique();
-                    entity.HasIndex(m => m.Email).IsUnique();
-                });
             }
 
             public static void ConfigureGuest(this ModelBuilder modelBuilder)
             {
-                modelBuilder.Entity<Guest>(entity =>
-                {
-                    entity.HasIndex(g => g.PersonalId).IsUnique();
 
-                    entity.HasMany(g => g.Reservations)
-                          .WithOne(res => res.Guest)
-                          .HasForeignKey(res => res.GuestId)
-                          .OnDelete(DeleteBehavior.Restrict);
-                });
             }
 
             public static void ConfigureReservation(this ModelBuilder modelBuilder)

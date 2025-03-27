@@ -20,7 +20,7 @@ namespace Hotel.Services.Mapping
                 .ReverseMap();
 
             // Manager <-> ManagerDTO
-            CreateMap<Manager, ManagerDTO>().ReverseMap();
+            CreateMap<ApplicationUser, ManagerDTO>().ReverseMap();
 
             // Room <-> RoomDTO
             CreateMap<Room, RoomDTO>().ReverseMap();

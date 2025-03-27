@@ -25,7 +25,7 @@ namespace Hotel.Models.Entities
         public Room Room { get; set; }
 
         [ForeignKey("Guest")]
-        public int GuestId { get; set; }
-        public Guest Guest { get; set; }
+        public string GuestId { get; set; }
+        public ApplicationUser Guest { get; set; }
     }
 }

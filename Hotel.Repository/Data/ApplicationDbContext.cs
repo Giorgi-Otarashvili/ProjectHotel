@@ -17,8 +17,6 @@ namespace Hotel.Repository.Data
 
         public DbSet<hotel> Hotels { get; set; }
         public DbSet<Room> Rooms { get; set; }
-        public DbSet<Manager> Managers { get; set; }
-        public DbSet<Guest> Guests { get; set; }
         public DbSet<Reservation> Reservations { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

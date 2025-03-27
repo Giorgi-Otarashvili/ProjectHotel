@@ -27,11 +27,11 @@ namespace ProjectHotel
             builder.Services.AddScoped<IHotelRepository, HotelRepository>();
             builder.Services.AddScoped<IRoomsRepository, RoomsRepository>();
             builder.Services.AddScoped<IRoomService, RoomService>();
-            builder.Services.AddScoped<IManagerRepository, ManagerRepository>();
-            builder.Services.AddScoped<IManagerService, ManagerService>();
+            //builder.Services.AddScoped<IManagerRepository, ManagerRepository>();
+            //builder.Services.AddScoped<IManagerService, ManagerService>();
             builder.Services.AddScoped<IAuthService, AuthService>();
-            builder.Services.AddScoped<IGuestRepository, GuestRepository>();
-            builder.Services.AddScoped<IGuestService, GuestService>();
+            //builder.Services.AddScoped<IGuestRepository, GuestRepository>();
+            //builder.Services.AddScoped<IGuestService, GuestService>();
             builder.Services.AddControllers();
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();

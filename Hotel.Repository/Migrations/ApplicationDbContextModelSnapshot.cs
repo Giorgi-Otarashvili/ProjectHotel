@@ -43,11 +43,16 @@ namespace Hotel.Repository.Migrations
 
                     b.Property<string>("FirstName")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<int?>("HotelId")
+                        .HasColumnType("int");
 
                     b.Property<string>("LastName")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<bool>("LockoutEnabled")
                         .HasColumnType("bit");
@@ -66,11 +71,21 @@ namespace Hotel.Repository.Migrations
                     b.Property<string>("PasswordHash")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("PersonalId")
+                        .IsRequired()
+                        .HasMaxLength(11)
+                        .HasColumnType("nvarchar(11)");
+
                     b.Property<string>("PhoneNumber")
-                        .HasColumnType("nvarchar(max)");
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
 
                     b.Property<bool>("PhoneNumberConfirmed")
                         .HasColumnType("bit");
+
+                    b.Property<int>("Role")
+                        .HasColumnType("int");
 
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("nvarchar(max)");
@@ -83,6 +98,10 @@ namespace Hotel.Repository.Migrations
                         .HasColumnType("nvarchar(256)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("HotelId")
+                        .IsUnique()
+                        .HasFilter("[HotelId] IS NOT NULL");
 
                     b.HasIndex("NormalizedEmail")
                         .HasDatabaseName("EmailIndex");
@@ -93,164 +112,6 @@ namespace Hotel.Repository.Migrations
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
 
                     b.ToTable("AspNetUsers", (string)null);
-                });
-
-            modelBuilder.Entity("Hotel.Models.Entities.Guest", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("FirstName")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<string>("LastName")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<string>("PersonalId")
-                        .IsRequired()
-                        .HasMaxLength(11)
-                        .HasColumnType("nvarchar(11)");
-
-                    b.Property<string>("PhoneNumber")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("PersonalId")
-                        .IsUnique();
-
-                    b.ToTable("Guests");
-                });
-
-            modelBuilder.Entity("Hotel.Models.Entities.Manager", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("AccessFailedCount")
-                        .HasColumnType("int");
-
-                    b.Property<string>("ConcurrencyStamp")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Email")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<bool>("EmailConfirmed")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("FirstName")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<int>("HotelId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("LastName")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<bool>("LockoutEnabled")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTimeOffset?>("LockoutEnd")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("NormalizedEmail")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("NormalizedUserName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("PasswordHash")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("PersonalId")
-                        .IsRequired()
-                        .HasMaxLength(11)
-                        .HasColumnType("nvarchar(11)");
-
-                    b.Property<string>("PhoneNumber")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
-                    b.Property<bool>("PhoneNumberConfirmed")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("SecurityStamp")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("TwoFactorEnabled")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("UserName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("Email")
-                        .IsUnique();
-
-                    b.HasIndex("HotelId")
-                        .IsUnique();
-
-                    b.HasIndex("PersonalId")
-                        .IsUnique();
-
-                    b.ToTable("Managers");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            AccessFailedCount = 0,
-                            ConcurrencyStamp = "c6cee3db-546e-479b-9c7e-cdb21888a2e1",
-                            Email = "giorgi@example.com",
-                            EmailConfirmed = false,
-                            FirstName = "Giorgi",
-                            HotelId = 1,
-                            LastName = "Beridze",
-                            LockoutEnabled = false,
-                            PersonalId = "12345678901",
-                            PhoneNumber = "+995555123456",
-                            PhoneNumberConfirmed = false,
-                            SecurityStamp = "2adab4b0-0d68-4136-9b7f-193cb9fd5104",
-                            TwoFactorEnabled = false
-                        },
-                        new
-                        {
-                            Id = 2,
-                            AccessFailedCount = 0,
-                            ConcurrencyStamp = "db798f8f-113d-461e-b80e-8c1afb400773",
-                            Email = "nino@example.com",
-                            EmailConfirmed = false,
-                            FirstName = "Nino",
-                            HotelId = 2,
-                            LastName = "Mchedlidze",
-                            LockoutEnabled = false,
-                            PersonalId = "98765432109",
-                            PhoneNumber = "+995599654321",
-                            PhoneNumberConfirmed = false,
-                            SecurityStamp = "2449f0dd-3f0a-4bf9-9d39-8a39baa1d03b",
-                            TwoFactorEnabled = false
-                        });
                 });
 
             modelBuilder.Entity("Hotel.Models.Entities.Reservation", b =>
@@ -267,8 +128,9 @@ namespace Hotel.Repository.Migrations
                     b.Property<DateTime>("CheckOut")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("GuestId")
-                        .HasColumnType("int");
+                    b.Property<string>("GuestId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<int>("RoomId")
                         .HasColumnType("int");
@@ -480,20 +342,19 @@ namespace Hotel.Repository.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("Hotel.Models.Entities.Manager", b =>
+            modelBuilder.Entity("Hotel.Models.Entities.ApplicationUser", b =>
                 {
                     b.HasOne("Hotel.Models.Entities.hotel", "Hotel")
                         .WithOne("Manager")
-                        .HasForeignKey("Hotel.Models.Entities.Manager", "HotelId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .HasForeignKey("Hotel.Models.Entities.ApplicationUser", "HotelId")
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.Navigation("Hotel");
                 });
 
             modelBuilder.Entity("Hotel.Models.Entities.Reservation", b =>
                 {
-                    b.HasOne("Hotel.Models.Entities.Guest", "Guest")
+                    b.HasOne("Hotel.Models.Entities.ApplicationUser", "Guest")
                         .WithMany("Reservations")
                         .HasForeignKey("GuestId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -572,14 +433,15 @@ namespace Hotel.Repository.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Hotel.Models.Entities.Guest", b =>
+            modelBuilder.Entity("Hotel.Models.Entities.ApplicationUser", b =>
                 {
                     b.Navigation("Reservations");
                 });
 
             modelBuilder.Entity("Hotel.Models.Entities.hotel", b =>
                 {
-                    b.Navigation("Manager");
+                    b.Navigation("Manager")
+                        .IsRequired();
 
                     b.Navigation("Rooms");
                 });
