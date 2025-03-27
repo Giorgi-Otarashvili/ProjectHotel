@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Hotel.Models.Dtos;
 using Hotel.Services.Implementations;
+using Hotel.Services.Interfases;
 
 namespace Hotel.Controllers
 {
@@ -8,17 +9,37 @@ namespace Hotel.Controllers
     [ApiController]
     public class AuthController : ControllerBase
     {
-        private readonly AuthService _authService;
+        private readonly IAuthService _authService;
 
-        public AuthController(AuthService authService)
+        public AuthController(IAuthService authService)
         {
             _authService = authService;
         }
 
-        [HttpPost("register")]
-        public async Task<IActionResult> Register([FromBody] RegisterDTO registerDto)
+        [HttpPost("register-guest")]
+        public async Task<IActionResult> RegisterGuest([FromBody] RegisterDTO registerDto)
         {
-            var result = await _authService.RegisterAsync(registerDto);
+            var result = await _authService.RegisterGuestAsync(registerDto);
+            if (result == "User registered successfully!")
+                return Ok(result);
+
+            return BadRequest(result);
+        }
+
+        [HttpPost("register-administrator")]
+        public async Task<IActionResult> RegisterAdministrator([FromBody] RegisterDTO registerDto)
+        {
+            var result = await _authService.RegisterAdminAsync(registerDto);
+            if (result == "User registered successfully!")
+                return Ok(result);
+
+            return BadRequest(result);
+        }
+
+        [HttpPost("register-manager")]
+        public async Task<IActionResult> RegisterManager([FromBody] RegisterDTO registerDto)
+        {
+            var result = await _authService.RegisterManagerAsync(registerDto);
             if (result == "User registered successfully!")
                 return Ok(result);
 

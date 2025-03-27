@@ -9,7 +9,9 @@ namespace Hotel.Services.Interfases
 {
     public interface IAuthService
     {
-        Task<string> RegisterAsync(RegisterDTO registerDto);
+        Task<string> RegisterGuestAsync(RegisterDTO registerDto);
+        Task<string> RegisterAdminAsync(RegisterDTO registerDto);
+        Task<string> RegisterManagerAsync(RegisterDTO registerDto);
         Task<string?> LoginAsync(LoginDTO loginDto);
     }
 }

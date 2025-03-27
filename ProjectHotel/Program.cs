@@ -33,6 +33,8 @@ namespace ProjectHotel
             builder.Services.AddScoped<IGuestRepository, GuestRepository>();
             builder.Services.AddScoped<IGuestService, GuestService>();
             builder.Services.AddControllers();
+            builder.Services.AddEndpointsApiExplorer();
+            builder.Services.AddSwaggerGen();
             builder.Services.AddAutoMapper(typeof(MappingProfile));
 
             // Database Context Configuration
@@ -65,6 +67,12 @@ namespace ProjectHotel
             builder.Services.AddAuthorization();
 
             var app = builder.Build();
+
+            if(app.Environment.IsDevelopment())
+            {
+                app.UseSwagger();
+                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "ProjectHotel v1"));
+            }
 
             // Middleware
             app.UseMiddleware<ExceptionMiddleware>();

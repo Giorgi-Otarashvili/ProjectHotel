@@ -14,16 +14,51 @@ namespace Hotel.Services.Implementations
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
+        private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IConfiguration _configuration;
 
-        public AuthService(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, IConfiguration configuration)
+        private const string GuestRole = "Guest";
+        private const string AdminRole = "Administrator";
+        private const string ManagerRole = "Manager";
+
+        public AuthService(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager,
+            RoleManager<IdentityRole> roleManager, IConfiguration configuration)
         {
             _userManager = userManager;
             _signInManager = signInManager;
+            _roleManager = roleManager;
             _configuration = configuration;
         }
 
-        public async Task<string> RegisterAsync(RegisterDTO registerDto)
+        public async Task<string> RegisterGuestAsync(RegisterDTO registerDto)
+        {
+            return await RegisterUserAsync(registerDto, GuestRole);
+        }
+
+        public async Task<string> RegisterAdminAsync(RegisterDTO registerDto)
+        {
+            return await RegisterUserAsync(registerDto, AdminRole);
+        }
+
+        public async Task<string> RegisterManagerAsync(RegisterDTO registerDto)
+        {
+            return await RegisterUserAsync(registerDto, ManagerRole);
+        }
+
+        public async Task<string?> LoginAsync(LoginDTO loginDto)
+        {
+            var user = await _userManager.FindByEmailAsync(loginDto.Email);
+            if (user == null)
+                return null;
+
+            var result = await _signInManager.PasswordSignInAsync(user, loginDto.Password, false, false);
+            if (!result.Succeeded)
+                return null;
+
+            return GenerateToken(user);
+        }
+
+        private async Task<string> RegisterUserAsync(RegisterDTO registerDto, string role)
         {
             var user = new ApplicationUser
             {
@@ -38,22 +73,9 @@ namespace Hotel.Services.Implementations
             if (!result.Succeeded)
                 return string.Join(", ", result.Errors.Select(e => e.Description));
 
-            await _userManager.AddToRoleAsync(user, registerDto.Role);
+            await _userManager.AddToRoleAsync(user, role);
 
             return "User registered successfully!";
-        }
-
-        public async Task<string?> LoginAsync(LoginDTO loginDto)
-        {
-            var user = await _userManager.FindByEmailAsync(loginDto.Email);
-            if (user == null)
-                return null;
-
-            var result = await _signInManager.PasswordSignInAsync(user, loginDto.Password, false, false);
-            if (!result.Succeeded)
-                return null;
-
-            return GenerateToken(user);
         }
 
         private string GenerateToken(ApplicationUser user)
