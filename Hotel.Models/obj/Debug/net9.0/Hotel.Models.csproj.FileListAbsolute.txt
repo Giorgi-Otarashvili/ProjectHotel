@@ -10,3 +10,16 @@ C:\Users\Budzzzx\Desktop\ProjectHotelSln\Hotel.Models\obj\Debug\net9.0\Hotel.Mod
 C:\Users\Budzzzx\Desktop\ProjectHotelSln\Hotel.Models\obj\Debug\net9.0\refint\Hotel.Models.dll
 C:\Users\Budzzzx\Desktop\ProjectHotelSln\Hotel.Models\obj\Debug\net9.0\Hotel.Models.pdb
 C:\Users\Budzzzx\Desktop\ProjectHotelSln\Hotel.Models\obj\Debug\net9.0\ref\Hotel.Models.dll
+C:\Users\Budzzzx\Downloads\ProjectHotel\Hotel.Models\bin\Debug\net9.0\Hotel.Models.deps.json
+C:\Users\Budzzzx\Downloads\ProjectHotel\Hotel.Models\bin\Debug\net9.0\Hotel.Models.dll
+C:\Users\Budzzzx\Downloads\ProjectHotel\Hotel.Models\bin\Debug\net9.0\Hotel.Models.pdb
+C:\Users\Budzzzx\Downloads\ProjectHotel\Hotel.Models\obj\Debug\net9.0\Hotel.Models.csproj.AssemblyReference.cache
+C:\Users\Budzzzx\Downloads\ProjectHotel\Hotel.Models\obj\Debug\net9.0\Hotel.Models.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Budzzzx\Downloads\ProjectHotel\Hotel.Models\obj\Debug\net9.0\Hotel.Models.AssemblyInfoInputs.cache
+C:\Users\Budzzzx\Downloads\ProjectHotel\Hotel.Models\obj\Debug\net9.0\Hotel.Models.AssemblyInfo.cs
+C:\Users\Budzzzx\Downloads\ProjectHotel\Hotel.Models\obj\Debug\net9.0\Hotel.Models.csproj.CoreCompileInputs.cache
+C:\Users\Budzzzx\Downloads\ProjectHotel\Hotel.Models\obj\Debug\net9.0\Hotel.Models.sourcelink.json
+C:\Users\Budzzzx\Downloads\ProjectHotel\Hotel.Models\obj\Debug\net9.0\Hotel.Models.dll
+C:\Users\Budzzzx\Downloads\ProjectHotel\Hotel.Models\obj\Debug\net9.0\refint\Hotel.Models.dll
+C:\Users\Budzzzx\Downloads\ProjectHotel\Hotel.Models\obj\Debug\net9.0\Hotel.Models.pdb
+C:\Users\Budzzzx\Downloads\ProjectHotel\Hotel.Models\obj\Debug\net9.0\ref\Hotel.Models.dll

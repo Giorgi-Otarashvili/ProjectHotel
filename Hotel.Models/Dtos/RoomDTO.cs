@@ -10,6 +10,9 @@ namespace Hotel.Models.Dtos
     {
         public int Id { get; set; }
         public string RoomNumber { get; set; } = string.Empty;
+
+        public string Name { get; set; } = string.Empty;
+
         public decimal Price { get; set; }
         public bool IsAvailable { get; set; } = true;
         public int HotelId { get; set; }

@@ -11,8 +11,8 @@ namespace Hotel.Repository.Interfaces
         Task<T> GetByIdAsync(int id);
         IQueryable<T> GetAll();
         Task AddAsync(T entity);
-        Task UpdateAsync(T entity);  // ასინქრონული განახლება
-        Task DeleteAsync(T entity);  // ასინქრონული წაშლა
+        Task UpdateAsync(T entity);  
+        Task DeleteAsync(T entity);  
         Task SaveChangesAsync();
     }
 }

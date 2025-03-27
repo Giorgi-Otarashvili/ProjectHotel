@@ -28,25 +28,25 @@ namespace Hotel.Repository.Implementations
 
         public async Task AddAsync(T entity)
         {
-            await _dbSet.AddAsync(entity); // entity-ის დამატება
-            await SaveChangesAsync(); // ბაზაში ცვლილებების შენახვა
+            await _dbSet.AddAsync(entity); 
+            await SaveChangesAsync(); 
         }
 
         public async Task UpdateAsync(T entity)
         {
-            _dbSet.Update(entity); // განახლება
-            await SaveChangesAsync(); // ცვლილებების შენახვა
+            _dbSet.Update(entity); 
+            await SaveChangesAsync(); 
         }
 
         public async Task DeleteAsync(T entity)
         {
-            _dbSet.Remove(entity); // წაშლა
-            await SaveChangesAsync(); // ცვლილებების შენახვა
+            _dbSet.Remove(entity); 
+            await SaveChangesAsync(); 
         }
 
         public async Task SaveChangesAsync()
         {
-            await _context.SaveChangesAsync(); // ცვლილებების შენახვა
+            await _context.SaveChangesAsync(); 
         }
     }
 }

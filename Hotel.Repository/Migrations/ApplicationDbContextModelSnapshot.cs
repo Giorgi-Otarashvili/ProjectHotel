@@ -41,7 +41,7 @@ namespace Hotel.Repository.Migrations
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("bit");
 
-                    b.Property<string>("FisrtName")
+                    b.Property<string>("FirstName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -129,24 +129,6 @@ namespace Hotel.Repository.Migrations
                         .IsUnique();
 
                     b.ToTable("Guests");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            FirstName = "Luka",
-                            LastName = "Giorgadze",
-                            PersonalId = "11122233344",
-                            PhoneNumber = "+995577123456"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            FirstName = "Ana",
-                            LastName = "Kiknavelidze",
-                            PersonalId = "55566677788",
-                            PhoneNumber = "+995599876543"
-                        });
                 });
 
             modelBuilder.Entity("Hotel.Models.Entities.Manager", b =>
@@ -157,10 +139,19 @@ namespace Hotel.Repository.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<int>("AccessFailedCount")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ConcurrencyStamp")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
+
+                    b.Property<bool>("EmailConfirmed")
+                        .HasColumnType("bit");
 
                     b.Property<string>("FirstName")
                         .IsRequired()
@@ -175,6 +166,21 @@ namespace Hotel.Repository.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
+                    b.Property<bool>("LockoutEnabled")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTimeOffset?>("LockoutEnd")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("NormalizedEmail")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("NormalizedUserName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PasswordHash")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("PersonalId")
                         .IsRequired()
                         .HasMaxLength(11)
@@ -184,6 +190,18 @@ namespace Hotel.Repository.Migrations
                         .IsRequired()
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
+
+                    b.Property<bool>("PhoneNumberConfirmed")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("SecurityStamp")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("TwoFactorEnabled")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("UserName")
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
@@ -202,22 +220,36 @@ namespace Hotel.Repository.Migrations
                         new
                         {
                             Id = 1,
+                            AccessFailedCount = 0,
+                            ConcurrencyStamp = "c6cee3db-546e-479b-9c7e-cdb21888a2e1",
                             Email = "giorgi@example.com",
+                            EmailConfirmed = false,
                             FirstName = "Giorgi",
                             HotelId = 1,
                             LastName = "Beridze",
+                            LockoutEnabled = false,
                             PersonalId = "12345678901",
-                            PhoneNumber = "+995555123456"
+                            PhoneNumber = "+995555123456",
+                            PhoneNumberConfirmed = false,
+                            SecurityStamp = "2adab4b0-0d68-4136-9b7f-193cb9fd5104",
+                            TwoFactorEnabled = false
                         },
                         new
                         {
                             Id = 2,
+                            AccessFailedCount = 0,
+                            ConcurrencyStamp = "db798f8f-113d-461e-b80e-8c1afb400773",
                             Email = "nino@example.com",
+                            EmailConfirmed = false,
                             FirstName = "Nino",
                             HotelId = 2,
                             LastName = "Mchedlidze",
+                            LockoutEnabled = false,
                             PersonalId = "98765432109",
-                            PhoneNumber = "+995599654321"
+                            PhoneNumber = "+995599654321",
+                            PhoneNumberConfirmed = false,
+                            SecurityStamp = "2449f0dd-3f0a-4bf9-9d39-8a39baa1d03b",
+                            TwoFactorEnabled = false
                         });
                 });
 
@@ -248,24 +280,6 @@ namespace Hotel.Repository.Migrations
                     b.HasIndex("RoomId");
 
                     b.ToTable("Reservations");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            CheckIn = new DateTime(2025, 4, 10, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            CheckOut = new DateTime(2025, 4, 15, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            GuestId = 1,
-                            RoomId = 1
-                        },
-                        new
-                        {
-                            Id = 2,
-                            CheckIn = new DateTime(2025, 5, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            CheckOut = new DateTime(2025, 5, 5, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            GuestId = 2,
-                            RoomId = 3
-                        });
                 });
 
             modelBuilder.Entity("Hotel.Models.Entities.Room", b =>
@@ -295,32 +309,6 @@ namespace Hotel.Repository.Migrations
                     b.HasIndex("HotelId");
 
                     b.ToTable("Rooms");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            HotelId = 1,
-                            IsAvailable = true,
-                            Name = "Deluxe Room",
-                            Price = 150m
-                        },
-                        new
-                        {
-                            Id = 2,
-                            HotelId = 1,
-                            IsAvailable = true,
-                            Name = "Standard Room",
-                            Price = 80m
-                        },
-                        new
-                        {
-                            Id = 3,
-                            HotelId = 2,
-                            IsAvailable = false,
-                            Name = "Luxury Suite",
-                            Price = 200m
-                        });
                 });
 
             modelBuilder.Entity("Hotel.Models.Entities.hotel", b =>
@@ -357,26 +345,6 @@ namespace Hotel.Repository.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Hotels");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Address = "Rustaveli Ave 12",
-                            City = "Tbilisi",
-                            Country = "Georgia",
-                            Name = "Grand Palace",
-                            Rating = 5
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Address = "Black Sea St 7",
-                            City = "Batumi",
-                            Country = "Georgia",
-                            Name = "Sea View Resort",
-                            Rating = 4
-                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>

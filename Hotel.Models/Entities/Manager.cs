@@ -5,10 +5,11 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Identity;
 
 namespace Hotel.Models.Entities
 {
-    public class Manager
+    public class Manager : IdentityUser
     {
         [Key]
         public int Id { get; set; }

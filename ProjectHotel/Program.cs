@@ -1,4 +1,3 @@
-
 using Hotel.Models.Entities;
 using Hotel.Repository.Data;
 using Hotel.Repository.Implementations;
@@ -9,6 +8,9 @@ using Hotel.Services.Mapping;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using ProjectHotel.Middleware;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 namespace ProjectHotel
 {
@@ -18,50 +20,59 @@ namespace ProjectHotel
         {
             var builder = WebApplication.CreateBuilder(args);
 
-
-
             // Add services to the container.
             // Add Dependency Injection
             builder.Services.AddScoped(typeof(IRepositoryBase<>), typeof(RepositoryBase<>));
             builder.Services.AddScoped<IHotelService, HotelService>();
             builder.Services.AddScoped<IHotelRepository, HotelRepository>();
             builder.Services.AddScoped<IRoomsRepository, RoomsRepository>();
-            //builder.Services.AddScoped<IManagerRepository, ManagerRepository>();
-            //builder.Services.AddScoped<IGuestRepository, GuestRepository>();
-            //builder.Services.AddScoped<IReservationRepository, ReservationRepository>();
-
+            builder.Services.AddScoped<IRoomService, RoomService>();
+            builder.Services.AddScoped<IManagerRepository, ManagerRepository>();
+            builder.Services.AddScoped<IManagerService, ManagerService>();
+            builder.Services.AddScoped<IAuthService, AuthService>();
+            builder.Services.AddScoped<IGuestRepository, GuestRepository>();
+            builder.Services.AddScoped<IGuestService, GuestService>();
             builder.Services.AddControllers();
             builder.Services.AddAutoMapper(typeof(MappingProfile));
 
-            // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-            builder.Services.AddOpenApi();
-
-
+            // Database Context Configuration
             builder.Services.AddDbContext<ApplicationDbContext>(options =>
-            options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+                options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-            builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
-    .AddEntityFrameworkStores<ApplicationDbContext>()
-    .AddDefaultTokenProviders();
+            // Identity Configuration
+            builder.Services.AddIdentity<ApplicationUser, IdentityRole>() 
+                .AddEntityFrameworkStores<ApplicationDbContext>()
+                .AddDefaultTokenProviders();
 
+            // Authentication & JWT Configuration
+            builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddJwtBearer(options =>
+                {
+                    options.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        ValidateIssuer = true,
+                        ValidateAudience = true,
+                        ValidateLifetime = true,
+                        ValidateIssuerSigningKey = true,
+                        ValidIssuer = builder.Configuration["Jwt:Issuer"],
+                        ValidAudience = builder.Configuration["Jwt:Audience"],
+                        IssuerSigningKey = new SymmetricSecurityKey(
+                            Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"])
+                        )
+                    };
+                });
 
-            builder.Services.AddAuthentication();
             builder.Services.AddAuthorization();
 
             var app = builder.Build();
 
-            // Configure the HTTP request pipeline.
-            if (app.Environment.IsDevelopment())
-            {
-                app.MapOpenApi();
-            }
+            // Middleware
             app.UseMiddleware<ExceptionMiddleware>();
 
             app.UseHttpsRedirection();
 
             app.UseAuthentication();
             app.UseAuthorization();
-
 
             app.MapControllers();
 

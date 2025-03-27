@@ -1,5 +1,6 @@
 ﻿using Hotel.Models.Entities;
 using Hotel.Repository.Interfaces;
+using Hotel.Services.Interfases;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Hotel.Services.Implementations
 {
-    public class RoomService
+    public class RoomService : IRoomService
     {
         private readonly IRoomsRepository _roomsRepository;
         private readonly IHotelRepository _hotelRepository;
