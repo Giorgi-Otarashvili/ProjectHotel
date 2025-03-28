@@ -13,5 +13,7 @@ namespace Hotel.Services.Interfases
         Task<string> RegisterAdminAsync(RegisterDTO registerDto);
         Task<string> RegisterManagerAsync(RegisterDTO registerDto);
         Task<string?> LoginAsync(LoginDTO loginDto);
+        Task<bool> UpdateUserProfile(string userId, UpdateUserDto model);
+        Task<bool> DeleteUser(string userId);
     }
 }

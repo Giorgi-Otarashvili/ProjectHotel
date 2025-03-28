@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Hotel.Models.Entities;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -15,7 +16,7 @@ namespace Hotel.Models.Dtos
         public string Country { get; set; } = string.Empty;
         public string City { get; set; } = string.Empty;
 
-        public List<ManagerDTO> Manager { get; set; } = new();
+        public string ManagerId { get; set; } = string.Empty;
         public List<RoomDTO> Rooms { get; set; } = new();
     }
 

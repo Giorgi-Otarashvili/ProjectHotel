@@ -13,11 +13,14 @@ namespace Hotel.Services.Mapping
     {
         public MappingProfile()
         {
+
+            CreateMap<RoomCreateDto, Room>();
+
+            CreateMap<hotel, HotelDTO>().ReverseMap();
+
             // Hotel <-> HotelDTO
-            CreateMap<hotel, HotelDTO>()
-                .ForMember(dest => dest.Manager, opt => opt.MapFrom(src => src.Manager))
-                .ForMember(dest => dest.Rooms, opt => opt.MapFrom(src => src.Rooms))
-                .ReverseMap();
+            CreateMap<hotel, HotelCreateDto>()
+                .ForMember(dest => dest.Rooms, opt => opt.Ignore()).ReverseMap();
 
             // Manager <-> ManagerDTO
             CreateMap<ApplicationUser, ManagerDTO>().ReverseMap();

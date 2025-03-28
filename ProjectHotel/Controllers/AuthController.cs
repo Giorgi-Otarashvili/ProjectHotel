@@ -2,6 +2,9 @@
 using Hotel.Models.Dtos;
 using Hotel.Services.Implementations;
 using Hotel.Services.Interfases;
+using Microsoft.AspNetCore.Identity;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Hotel.Controllers
 {
@@ -54,6 +57,38 @@ namespace Hotel.Controllers
                 return Unauthorized("Invalid credentials");
 
             return Ok(new { Token = token });
+        }
+
+        [HttpPut("update-profile")]
+        [Authorize]
+        public async Task<IActionResult> UpdateUserProfile([FromBody] UpdateUserDto model)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId == null)
+                return Unauthorized("User not found");
+
+            var updated = await _authService.UpdateUserProfile(userId, model);
+            if (!updated)
+                return BadRequest("Failed to update profile");
+
+            return Ok(new { message = "Profile updated successfully" });
+        }
+
+        [HttpDelete("delete-account")]
+        public async Task<IActionResult> DeleteUser()
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId == null)
+                return Unauthorized("User not found");
+
+            var deleted = await _authService.DeleteUser(userId);
+            if (!deleted)
+                return BadRequest("Failed to delete account");
+
+            return Ok(new { message = "Account deleted successfully" });
         }
     }
 }

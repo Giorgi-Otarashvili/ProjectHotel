@@ -1,4 +1,6 @@
-﻿using Hotel.Models.Entities;
+﻿using AutoMapper;
+using Hotel.Models.Dtos;
+using Hotel.Models.Entities;
 using Hotel.Repository.Interfaces;
 using Hotel.Services.Interfases;
 using System;
@@ -13,20 +15,25 @@ namespace Hotel.Services.Implementations
     {
         private readonly IRoomsRepository _roomsRepository;
         private readonly IHotelRepository _hotelRepository;
+        private readonly IMapper _mapper;
 
-        public RoomService(IRoomsRepository roomsRepository, IHotelRepository hotelRepository)
+        public RoomService(IRoomsRepository roomsRepository, IHotelRepository hotelRepository, IMapper mapper)
         {
             _roomsRepository = roomsRepository;
             _hotelRepository = hotelRepository;
+            _mapper = mapper;
         }
-        public async Task<Room> AddRoomAsync(Room room)
+        public async Task<Room> AddRoomAsync(RoomCreateDto roomDTO, int hotelId)
         {
-            var hotel = await _hotelRepository.GetByIdAsync(room.HotelId);
+            var hotel = await _hotelRepository.GetByIdAsync(hotelId);
             if (hotel == null)
                 throw new Exception("Hotel not found.");
 
-            if (room.Price <= 0)
+            if (roomDTO.Price <= 0)
                 throw new Exception("Room price must be greater than zero.");
+
+            var room = _mapper.Map<Room>(roomDTO);
+            room.HotelId = hotelId;
 
             await _roomsRepository.AddAsync(room);
             return room;
@@ -88,6 +95,11 @@ namespace Hotel.Services.Implementations
                 rooms = rooms.Where(r => r.Price <= maxPrice.Value);
 
             return rooms; // IQueryable-ით ვაბრუნებთ, რაც უკეთესია SQL-თვის
+        }
+
+        public Task<Room> GetRoomByIdAsync(int roomId)
+        {
+            return _roomsRepository.GetByIdAsync(roomId);
         }
     }
 }

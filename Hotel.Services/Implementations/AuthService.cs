@@ -61,7 +61,35 @@ namespace Hotel.Services.Implementations
             if (!result.Succeeded)
                 return null;
 
-            return GenerateToken(user);
+            return await GenerateToken(user);
+        }
+
+        public async Task<bool> UpdateUserProfile(string userId, UpdateUserDto model)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
+                return false;
+
+            // Update properties
+            user.FirstName = model.FirstName;
+            user.LastName = model.LastName;
+            user.PersonalId = model.PersonalId;
+            user.PhoneNumber = model.PhoneNumber;
+
+            var result = await _userManager.UpdateAsync(user);
+            return result.Succeeded;
+        }
+
+        public async Task<bool> DeleteUser(string userId)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
+                return false;
+
+
+
+            var result = await _userManager.DeleteAsync(user);
+            return result.Succeeded;
         }
 
         private async Task<string> RegisterUserAsync(RegisterDTO registerDto, string role)
@@ -97,17 +125,28 @@ namespace Hotel.Services.Implementations
             return "User registered successfully!";
         }
 
-        private string GenerateToken(ApplicationUser user)
+        public async Task<string> GenerateToken(ApplicationUser user)
         {
+            var userRoles = await _userManager.GetRolesAsync(user); // Get Identity Roles
+
             var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.NameIdentifier, user.Id),
-                new Claim(ClaimTypes.Email, user.Email),
-                new Claim(ClaimTypes.Name, $"{user.FirstName} {user.LastName}")
+                new Claim(ClaimTypes.Name, user.UserName),
+                new Claim("FirstName", user.FirstName),  // Custom Claim for First Name
+                new Claim("LastName", user.LastName),    // Custom Claim for Last Name
+                new Claim("RoleEnum", user.Role.ToString()), // ApplicationUser Role (Enum)
+                new Claim(ClaimTypes.Role, user.Role.ToString()), // ApplicationUser Role (Enum)
+                new Claim(ClaimTypes.MobilePhone, user.PhoneNumber ?? ""),
+                new Claim("PersonalId", user.PersonalId),
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
             };
 
-            var roles = _userManager.GetRolesAsync(user).Result;
-            claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));
+            // Add Identity Roles as claims (this is needed for [Authorize(Roles="Manager")])
+            foreach (var role in userRoles)
+            {
+                claims.Add(new Claim(ClaimTypes.Role, role));
+            }
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
@@ -116,11 +155,39 @@ namespace Hotel.Services.Implementations
                 _configuration["Jwt:Issuer"],
                 _configuration["Jwt:Audience"],
                 claims,
-                expires: DateTime.UtcNow.AddHours(2),
+                expires: DateTime.UtcNow.AddHours(3),
                 signingCredentials: creds
             );
 
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
+
+
+
+        //private string GenerateToken(ApplicationUser user)
+        //{
+        //    var claims = new List<Claim>
+        //    {
+        //        new Claim(ClaimTypes.NameIdentifier, user.Id),
+        //        new Claim(ClaimTypes.Email, user.Email),
+        //        new Claim(ClaimTypes.Name, $"{user.FirstName} {user.LastName}")
+        //    };
+
+        //    var roles = _userManager.GetRolesAsync(user).Result;
+        //    claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));
+
+        //    var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
+        //    var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+        //    var token = new JwtSecurityToken(
+        //        _configuration["Jwt:Issuer"],
+        //        _configuration["Jwt:Audience"],
+        //        claims,
+        //        expires: DateTime.UtcNow.AddHours(2),
+        //        signingCredentials: creds
+        //    );
+
+        //    return new JwtSecurityTokenHandler().WriteToken(token);
+        //}
     }
 }

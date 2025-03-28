@@ -17,6 +17,8 @@ namespace Hotel.Repository.Implementations
         {
             var query = _dbSet.AsQueryable();
 
+            query = query.Include(c => c.Rooms);
+
             if (!string.IsNullOrEmpty(country))
                 query = query.Where(h => h.Country == country);
 
@@ -34,7 +36,8 @@ namespace Hotel.Repository.Implementations
             var hasActiveRooms = await _context.Rooms.AnyAsync(r => r.HotelId == hotelId && r.IsAvailable);
             var hasActiveReservations = await _context.Reservations
                 .AnyAsync(r => _context.Rooms.Any(room => room.Id == r.RoomId && room.HotelId == hotelId)
-                               && r.CheckOut > DateTime.UtcNow);
+                               //&& r.CheckOut > DateTime.UtcNow
+                               );
 
             return !hasActiveRooms && !hasActiveReservations;
         }

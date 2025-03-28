@@ -3,47 +3,55 @@ using Hotel.Models.Dtos;
 using Hotel.Models.Entities;
 using Hotel.Services.Implementations;
 using Hotel.Services.Interfases;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace ProjectHotel.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class HotelController : ControllerBase
+    public class HotelsController : ControllerBase
     {
         private readonly IHotelService _hotelService;
         private readonly IRoomService _roomService;
-        private readonly IManagerService _managerService;
-        private readonly IGuestService _guestService;
+        private readonly IReservationService _reservationService;
         private readonly IMapper _mapper;
 
-        public HotelController(IHotelService hotelService, IRoomService roomService, IManagerService managerService, IGuestService guestService, IMapper mapper)
+        public HotelsController(IHotelService hotelService, IRoomService roomService, IReservationService reservationService, IMapper mapper)
         {
             _hotelService = hotelService;
             _roomService = roomService;
-            _managerService = managerService;
-            _guestService = guestService;
+            _reservationService = reservationService;
             _mapper = mapper;
         }
+        #region HOTEL ENDPOINTS
         // Create Hotel
+        [Authorize(Roles = "Manager")]
         [HttpPost]
-        public async Task<IActionResult> CreateHotel([FromBody] HotelDTO hotelDTO)
+        public async Task<IActionResult> CreateHotel([FromBody] HotelCreateDto hotelDto)
         {
-            if (hotelDTO == null)
+            if (hotelDto == null)
                 return BadRequest("Invalid hotel data.");
-            var hotelEntity = _mapper.Map<hotel>(hotelDTO);
 
-            var createdHotel = await _hotelService.CreateHotelAsync(hotelEntity);
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId == null)
+                return Unauthorized("Manager not found");
 
-            var createdHotelDTO = _mapper.Map<HotelDTO>(createdHotel);
+            hotelDto.ManagerId = userId;
 
+            var createdHotel = await _hotelService.CreateHotelAsync(hotelDto);
 
-            return CreatedAtAction(nameof(GetHotelById), new { id = createdHotelDTO.Id }, createdHotelDTO);
+            if(createdHotel != null)
+                return Ok("Hotel Created");
+
+            return BadRequest();
         }
 
         // Update Hotel
+        [Authorize(Roles = "Manager,Administrator")]
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateHotel(int id, [FromBody] HotelDTO hotelDTO)
+        public async Task<IActionResult> UpdateHotel(int id, [FromBody] HotelCreateDto hotelDTO)
         {
             if (hotelDTO == null)
                 return BadRequest("Invalid hotel data.");
@@ -60,6 +68,7 @@ namespace ProjectHotel.Controllers
         }
 
         // Delete Hotel
+        [Authorize(Roles = "Manager,Administrator")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteHotel(int id)
         {
@@ -93,25 +102,41 @@ namespace ProjectHotel.Controllers
             return Ok(hotelsDTOs);
         }
 
-        // ---------------------- Room Endpoints ----------------------
+        [Authorize(Roles = "Administrator")]
+        [HttpPost("add-manager-to-hotel")]
+        public async Task<IActionResult> AddManagerToHotel([FromBody] AddManagerToHotelDto addManagerToHotel)
+        {
+            var result = await _hotelService.AddManagerToHotelAsync(addManagerToHotel.ManagerId, addManagerToHotel.HotelId);
+
+            if (result)
+                return Ok("Manager added to hotel.");
+            return BadRequest();
+        }
+        #endregion
+
+        #region ROOM ENDPOINTS
 
         // Add Room to Hotel
+        [Authorize(Roles = "Manager,Administrator")]
         [HttpPost("{hotelId}/rooms")]
-        public async Task<IActionResult> AddRoomToHotel(int hotelId, [FromBody] RoomDTO roomDTO)
+        public async Task<IActionResult> AddRoomToHotel(int hotelId, [FromBody] RoomCreateDto roomDTO)
         {
             if (roomDTO == null || roomDTO.Price <= 0)
                 return BadRequest("Invalid room data. Price must be greater than zero.");
 
-            var roomEntity = _mapper.Map<Room>(roomDTO);
-            roomEntity.HotelId = hotelId;
+            var createdRoom = await _roomService.AddRoomAsync(roomDTO, hotelId);
 
-            var createdRoom = await _roomService.AddRoomAsync(roomEntity);
-            return Ok(_mapper.Map<RoomDTO>(createdRoom));
+            if (createdRoom != null)
+            {
+                return Ok("Created Room");
+            }
+            return BadRequest();
         }
 
         // Update Room Details
+        [Authorize(Roles = "Manager,Administrator")]
         [HttpPut("{hotelId}/rooms/{roomId}")]
-        public async Task<IActionResult> UpdateRoom(int hotelId, int roomId, [FromBody] RoomDTO roomDTO)
+        public async Task<IActionResult> UpdateRoom(int hotelId, int roomId, [FromBody] RoomCreateDto roomDTO)
         {
             var updatedRoom = await _roomService.UpdateRoomAsync(roomId, roomDTO.Name, roomDTO.Price, roomDTO.IsAvailable);
             if (updatedRoom == null)
@@ -121,6 +146,7 @@ namespace ProjectHotel.Controllers
         }
 
         // Delete Room
+        [Authorize(Roles = "Manager,Administrator")]
         [HttpDelete("{hotelId}/rooms/{roomId}")]
         public async Task<IActionResult> DeleteRoom(int hotelId, int roomId)
         {
@@ -138,92 +164,65 @@ namespace ProjectHotel.Controllers
             var rooms = _roomService.GetRoomsByFilter(hotelId, isAvailable, minPrice, maxPrice);
             return Ok(_mapper.ProjectTo<RoomDTO>(rooms));
         }
-        // ---------------------- Guest Endpoints ----------------------
+        #endregion
 
-        // Register Guest
-        [HttpPost("guests/register")]
-        public async Task<IActionResult> RegisterGuest([FromBody] GuestDTO guestDTO)
+        #region RESERVATION ENDPOINTS
+
+        [Authorize(Roles ="Guest")]
+        [HttpPost("reservations")]
+        public async Task<IActionResult> CreateReservation([FromBody] ReservationCreateDto reservationDTO)
         {
-            if (guestDTO == null)
-                return BadRequest("Invalid guest data.");
+            if (reservationDTO == null)
+                return BadRequest("Invalid reservation data.");
 
-            var result = await _guestService.RegisterGuestAsync(guestDTO);
+            //Validations
+            if (reservationDTO.CheckIn < DateTime.Now)
+                return BadRequest("Check-in date must be in the future.");
+            if(reservationDTO.CheckOut <= reservationDTO.CheckIn)
+                return BadRequest("Check-out date must be after check-in date.");
 
-            if (result != "Guest registered successfully!")
-                return BadRequest(result); 
+            var room = await _roomService.GetRoomByIdAsync(reservationDTO.RoomId);
 
-            return Ok(result);
+            if(!room.IsAvailable)
+                return BadRequest("Room is not available");
+
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId == null)
+                return Unauthorized("Manager not found");
+
+            reservationDTO.GuestId = userId;
+
+            var createdReservation = await _reservationService.CreateReservationAsync(reservationDTO);
+
+            if (createdReservation != null)
+                return Ok("Reservation Created");
+            return BadRequest();
         }
 
-        // Update Guest
-        [HttpPut("guests/{id}")]
-        public async Task<IActionResult> UpdateGuest(int id, [FromBody] GuestDTO guestDTO)
+        [Authorize(Roles = "Guest,Administrator")]
+        [HttpPut("reservations/{reservationId}")]
+        public async Task<IActionResult> UpdateReservation(int reservationId, [FromBody] ReservationUpdateDto reservationDTO)
         {
-            var updatedGuest = await _guestService.UpdateGuestAsync(id, guestDTO);
-            if (updatedGuest == null)
-                return NotFound("Guest not found.");
+            var updateReservation = await _reservationService.UpdateReservationAsync(reservationId, reservationDTO.CheckIn, reservationDTO.CheckOut);
 
-            return Ok(updatedGuest);
+            if (updateReservation){
+                return Ok("Reservation Updated");
+            }
+            return BadRequest();
         }
 
-        // Delete Guest (if no active reservations)
-        [HttpDelete("guests/{id}")]
-        public async Task<IActionResult> DeleteGuest(int id)
+        [Authorize(Roles = "Guest,Administrator")]
+        [HttpDelete("reservations/{reservationId}")]
+        public async Task<IActionResult> DeleteReservation(int reservationId)
         {
-            var result = await _guestService.DeleteGuestAsync(id); 
+            var result = await _reservationService.DeleteReservationAsync(reservationId);
 
-            if (result == "Guest has active reservations and cannot be deleted.")
-                return BadRequest(result);  
-
-            if (result == "Guest not found.")
-                return NotFound(result);
-
-            return Ok("Guest successfully deleted.");
+            if (result)
+                return Ok("Reservation deleted");
+            return BadRequest();
         }
 
-        // ---------------------- Manager Endpoints ----------------------
+        #endregion
 
-        // Register Manager
-        [HttpPost("managers/register")]
-        public async Task<IActionResult> RegisterManager([FromBody] ManagerDTO managerDTO)
-        {
-            var manager = await _managerService.CreateManagerAsync(managerDTO);
-            return CreatedAtAction(nameof(GetManagerById), new { managerId = manager.Id }, manager);
-        }
-
-        // Update Manager
-        [HttpPut("managers/{id}")]
-        public async Task<IActionResult> UpdateManager(int id, [FromBody] ManagerDTO managerDTO)
-        {
-            var updatedManager = await _managerService.UpdateManagerAsync(id, managerDTO);
-            if (updatedManager == null) return NotFound("Manager not found.");
-            return Ok(updatedManager);
-        }
-
-        // Delete Manager
-        [HttpDelete("managers/{id}")]
-        public async Task<IActionResult> DeleteManager(int id)
-        {
-            var success = await _managerService.DeleteManagerAsync(id);
-            if (!success) return NotFound("Manager not found.");
-            return NoContent();
-        }
-
-        // Get Manager by ID
-        [HttpGet("managers/{id}")]
-        public async Task<IActionResult> GetManagerById(int id)
-        {
-            var manager = await _managerService.GetManagerByIdAsync(id);
-            if (manager == null) return NotFound("Manager not found.");
-            return Ok(manager);
-        }
-
-        // Get All Managers
-        [HttpGet("managers")]
-        public async Task<ActionResult<IEnumerable<ManagerDTO>>> GetAllManagers()
-        {
-            var managers = await _managerService.GetAllManagersAsync();
-            return Ok(managers);
-        }
     }
 }

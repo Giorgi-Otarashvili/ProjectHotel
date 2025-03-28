@@ -1,4 +1,5 @@
-﻿using Hotel.Models.Entities;
+﻿using Hotel.Models.Dtos;
+using Hotel.Models.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,7 +10,7 @@ namespace Hotel.Services.Interfases
 {
     public interface IHotelService
     {
-        Task<hotel> CreateHotelAsync(hotel hotel);
+        Task<hotel> CreateHotelAsync(HotelCreateDto hotelDto);
 
         Task<hotel> UpdateHotelAsync(int hotelId, string name , string address, int rating);
 
@@ -18,7 +19,6 @@ namespace Hotel.Services.Interfases
         IQueryable<hotel> GetHotelsByFilter(string? country, string? city, int? rating);
         //IQueryable<hotel> GetHotelById(int hotelId);
         Task<hotel?> GetHotelByIdAsync(int hotelId);
-
-
+        Task<bool> AddManagerToHotelAsync(string managerId, int hotelId);
     }
 }
